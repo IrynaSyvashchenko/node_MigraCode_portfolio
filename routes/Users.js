@@ -4,16 +4,30 @@ const authorization = require("../middleware/authorization");
 
 
 
-router.get("/user",authorization, async (req, res) => {
+router.get("/users",authorization, async (req, res) => {
     try {
-        const query = `select * from users where id = $1`;
-        const values = [req.userId];
-        const results = await pool.query(query, values);
+      const query = `select * from users where id = $1`;
+      const values = [req.userId];
+      const results = await pool.query(query, values);
+      
+      // Octokit.js
+      // https://github.com/octokit/core.js#readme
+      const octokit = new Octokit({
+        auth: "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",
+      });
 
-        if (results.rows.length > 0) {
-            return res.status(200).json({ message: "ok", data: results.rows });
-        }
-        return res.status(400).json({ message: "invalid Data" });
+      const results2 = await octokit.request("GET /users/IrynaSyvashchenko", {
+        username: "IrynaSyvashchenko",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      });
+
+      return res.status(200).json({ message: "ok", data: results2 });
+    //   if (results.rows.length > 0) {
+    //     return res.status(200).json({ message: "ok", data: results.rows });
+    //   }
+      return res.status(400).json({ message: "invalid Data" });
     } catch (error) {
         console.error("Error retrieving user:", error.message);
         return res.status(500).json({
