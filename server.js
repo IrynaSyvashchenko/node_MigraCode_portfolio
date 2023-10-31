@@ -58,10 +58,13 @@ app.get("/gitusers", async function (request, response) {
 
 // routes
 // signUp route
-app.use("/singup", require("./routes/SignUp"));
+// app.use("/singup", require("./routes/SignUp"));
 
 // signIn route
 app.use("/login", require("./routes/LogIn"));
+
+// students route
+app.use('/students', require("./routes/Students"));
 
 // user route
 app.use('/users', require("./routes/Users"));
