@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
     let offset = req.query.offset;
     let filterBy = req.query.filterBy;
 
-    if (!filterBy) {
+    if (filterBy === "asc") {
         filterBy = [{ field: "Full name", direction: "asc" }];
     } else if (filterBy === "desc") {
         filterBy = [{ field: "Full name", direction: "desc" }];
