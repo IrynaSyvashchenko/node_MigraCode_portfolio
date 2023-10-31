@@ -4,7 +4,7 @@ const authorization = require("../middleware/authorization");
 
 
 
-router.get("/users",authorization, async (req, res) => {
+router.get("/user", authorization, async (req, res) => {
     try {
       const query = `select * from users where id = $1`;
       const values = [req.userId];
