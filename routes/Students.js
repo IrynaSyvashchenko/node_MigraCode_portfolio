@@ -12,10 +12,18 @@ const headers = {
 router.get("/", async (req, res) => {
     let offset = req.query.offset;
     let filterBy = req.query.filterBy;
+    const studentFullName = req.query.studentFullName;
 
-    if (filterBy === "asc") {
+    let filterByFormula = '';
+
+    if (studentFullName) {
+        // filter by students name
+        filterByFormula = `AND(FIND("${studentFullName}", {Full name}))`;
+    } else if (filterBy === "a-z") {
+        // filter students by a-z
         filterBy = [{ field: "Full name", direction: "asc" }];
-    } else if (filterBy === "desc") {
+    } else if (filterBy === "z-a") {
+        // filter students by z-a
         filterBy = [{ field: "Full name", direction: "desc" }];
     } else if (filterBy === "graduatedDate") {
         // to sort the data to graduated date column type the name of column  graduated date in the field
@@ -30,9 +38,10 @@ router.get("/", async (req, res) => {
             headers,
             params: {
                 pageSize: 6,
-                maxRecords: 500,
+                maxRecords: 1500,
                 offset: offset,
                 sort: filterBy,
+                filterByFormula,
             },
         };
         // console.log(queryParams.params);
@@ -47,7 +56,7 @@ router.get("/", async (req, res) => {
 
             // promise to fetch images
             await Promise.all(
-                // each record 
+                // each record
                 records.map(async (record) => {
                     let avatar_url = "";
                     try {
@@ -74,7 +83,7 @@ router.get("/", async (req, res) => {
                         group: record.fields.Group,
                         LinkedIn: record.fields.LinkedIn
                             ? record.fields.LinkedIn
-                            : '',
+                            : "",
                         skills: record.fields.Skills,
                         selectedCourse: record.fields["Selected course"],
                         comment: record.fields.Comment,
@@ -94,14 +103,8 @@ router.get("/", async (req, res) => {
 
 module.exports = router;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// to fetch next page http://localhost:3001/students?offset=...
 // ?offset=itrgOuEr5Q9Dj48dA/rec2EKNbV3JBuDsmV
 // ?filterBy= asc, desc
-// to fetch next page http://localhost:3001/students?offset=...
-// const filterByFormula = 'AND({Language(s)} = "English")'; // Define the filter criteria
+// ?studentFullName=...
 
-// const queryParams = {
-//     headers,
-//     params: {
-//         filterByFormula ,
-//     },
-// };
