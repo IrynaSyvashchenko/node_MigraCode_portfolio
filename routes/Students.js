@@ -12,14 +12,20 @@ const headers = {
 router.get("/", async (req, res) => {
     let offset = req.query.offset;
     let filterBy = req.query.filterBy;
+    let filterById = req.query.filterById;
     const studentFullName = req.query.studentFullName;
 
     let filterByFormula = '';
 
-    if (studentFullName) {
-        // filter by students name
+    if (filterById) {
+        // Filter records by ID
+        filterByFormula = `RECORD_ID() = '${filterById}'`;
+    } else if (studentFullName) {
+        // Filter by student's name
         filterByFormula = `AND(FIND("${studentFullName}", {Full name}))`;
-    } else if (filterBy === "a-z") {
+    }
+    
+    if (filterBy === "a-z") {
         // filter students by a-z
         filterBy = [{ field: "Full name", direction: "asc" }];
     } else if (filterBy === "z-a") {
@@ -107,4 +113,3 @@ module.exports = router;
 // ?offset=itrgOuEr5Q9Dj48dA/rec2EKNbV3JBuDsmV
 // ?filterBy= asc, desc
 // ?studentFullName=...
-
