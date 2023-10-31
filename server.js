@@ -36,7 +36,7 @@ app.get("/gitusers", async function (request, response) {
   // Octokit.js
   // https://github.com/octokit/core.js#readme
   const octokit = new Octokit({
-    auth: "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",
+    auth: "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",
   });
 
   try {
@@ -49,12 +49,42 @@ app.get("/gitusers", async function (request, response) {
 
     return response.status(200).json(results2);
   } catch (error) {
+    console.log(error);
     return response
       .status(500)
       .json({ message: "Error", error: error.message });
   }
 });
 
+app.get("/projects", async function (request, response) {
+  // Octokit.js
+  // https://github.com/octokit/core.js#readme
+  const octokit = new Octokit({
+    auth: "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",
+  });
+
+  try {
+     const result = await octokit.request(
+       "GET /repos/IrynaSyvashchenko/node_MigraCode_portfolio",
+       {
+         owner: "IrynaSyvashchenko",
+         repo: "node_MigraCode_portfolio",
+         headers: {
+           "X-GitHub-Api-Version": "2022-11-28",
+         },
+       }
+     );
+
+    return response.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    return response
+      .status(500)
+      .json({ message: "Error", error: error.message });
+  }
+});
+
+ 
 
 // routes
 // signUp route
