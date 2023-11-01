@@ -32,57 +32,57 @@ app.get("/", function (request, response) {
     response.send("MigraCode portfolio server.");
 });
 
-app.get("/gitusers", async function (request, response) {
-  // Octokit.js
-  // https://github.com/octokit/core.js#readme
-  const octokit = new Octokit({
-    auth: "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",
-  });
+// app.get("/gitusers", async function (request, response) {
+//   // Octokit.js
+//   // https://github.com/octokit/core.js#readme
+//   const octokit = new Octokit({
+//     auth: "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",
+//   });
 
-  try {
-    const results2 = await octokit.request("GET /users/IrynaSyvashchenko", {
-      username: "IrynaSyvashchenko",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
+//   try {
+//     const results2 = await octokit.request("GET /users/IrynaSyvashchenko", {
+//       username: "IrynaSyvashchenko",
+//       headers: {
+//         "X-GitHub-Api-Version": "2022-11-28",
+//       },
+//     });
 
-    return response.status(200).json(results2);
-  } catch (error) {
-    console.log(error);
-    return response
-      .status(500)
-      .json({ message: "Error", error: error.message });
-  }
-});
+//     return response.status(200).json(results2);
+//   } catch (error) {
+//     console.log(error);
+//     return response
+//       .status(500)
+//       .json({ message: "Error", error: error.message });
+//   }
+// });
 
-app.get("/projects", async function (request, response) {
-  // Octokit.js
-  // https://github.com/octokit/core.js#readme
-  const octokit = new Octokit({
-    auth: "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",
-  });
+// app.get("/projects", async function (request, response) {
+//   // Octokit.js
+//   // https://github.com/octokit/core.js#readme
+//   const octokit = new Octokit({
+//     auth: "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",
+//   });
 
-  try {
-     const result = await octokit.request(
-       "GET /repos/IrynaSyvashchenko/node_MigraCode_portfolio",
-       {
-         owner: "IrynaSyvashchenko",
-         repo: "node_MigraCode_portfolio",
-         headers: {
-           "X-GitHub-Api-Version": "2022-11-28",
-         },
-       }
-     );
+//   try {
+//      const result = await octokit.request(
+//        "GET /repos/IrynaSyvashchenko/node_MigraCode_portfolio",
+//        {
+//          owner: "IrynaSyvashchenko",
+//          repo: "node_MigraCode_portfolio",
+//          headers: {
+//            "X-GitHub-Api-Version": "2022-11-28",
+//          },
+//        }
+//      );
 
-    return response.status(200).json(result);
-  } catch (error) {
-    console.log(error);
-    return response
-      .status(500)
-      .json({ message: "Error", error: error.message });
-  }
-});
+//     return response.status(200).json(result);
+//   } catch (error) {
+//     console.log(error);
+//     return response
+//       .status(500)
+//       .json({ message: "Error", error: error.message });
+//   }
+// });
 
  
 
@@ -95,6 +95,9 @@ app.use("/login", require("./routes/LogIn"));
 
 // students route
 app.use('/students', require("./routes/Students"));
+
+// user route
+app.use('/projects', require("./routes/Projects"));
 
 // user route
 app.use('/users', require("./routes/Users"));
