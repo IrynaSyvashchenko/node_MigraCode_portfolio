@@ -46,6 +46,7 @@ function fetchNextPage(pageNumber, maxPage, res, offset) {
           offset += limit;
           res.json({ rows: result.rows, totalRows: totalRows });
         }
+
       }
     );
   }

@@ -85,7 +85,7 @@ router.get("/", async (req, res) => {
                         Languages: record.fields["Language(s)"],
                         gender: record.fields.Gender,
                         gitHub: record.fields["GitHub handle"],
-                        avatar_url: avatar_url,
+                        imageUrl: avatar_url,
                         group: record.fields.Group,
                         LinkedIn: record.fields.LinkedIn
                             ? record.fields.LinkedIn
@@ -112,5 +112,6 @@ module.exports = router;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // to fetch next page http://localhost:3001/students?offset=...
 // ?offset=itrgOuEr5Q9Dj48dA/rec2EKNbV3JBuDsmV
-// ?filterBy= asc, desc
+// ?filterBy= a-z, z-a 
 // ?studentFullName=...
+// ?filterById=...
