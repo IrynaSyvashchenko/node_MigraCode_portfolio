@@ -28,7 +28,7 @@ function fetchNextPage(req, res) {
   }
 
   pool.query(
-    `SELECT * FROM projects ORDER BY id LIMIT 6 OFFSET ${offset}`,
+    `SELECT * FROM projects ORDER BY id LIMIT 6 OFFSET $1`,[offset],
     (error, result) => {
       if (error) {
         console.log(error);
@@ -43,7 +43,7 @@ function fetchNextPage(req, res) {
   );
 }
 
-router.post("/", async (req, res) => {
+router.post("/", authorization, async (req, res) => {
   const newProject = req.body;
   const query = `insert into projects (name, description, repository_link, live_demo_link, project_image_link, technologies_used, instructors_names, team_member_names, team_member_roles, trello_link, product_presentation_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
   pool.query(
@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
   );
 });
 
-router.delete("/:projectId", async (req, res) => {
+router.delete("/:projectId", authorization, async (req, res) => {
   const projectId = req.params.projectId;
   const queryProject = `SELECT * FROM projects WHERE id = $1`;
 
@@ -101,7 +101,7 @@ router.delete("/:projectId", async (req, res) => {
   });
 });
 
-router.patch("/:projectId/:column", function (req, res) {
+router.patch("/:projectId/:column", authorization, function (req, res) {
   const projectId = req.params.projectId;
   const column = req.params.column;
   const newValue = req.body[column];
