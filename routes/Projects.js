@@ -1,11 +1,21 @@
 const router = require("express").Router();
 const pool = require("../database/db");
 const authorization = require("../middleware/authorization");
-let offset = 0;
-let totalCount = -1;
+let totalRows = -1;
+let limit = 6;
+
 
 router.get("/", async (req, res) => {
-  if (totalCount === -1) {
+  let pageNumber = parseInt(req.query.pageNumber);
+  let offset = (limit * pageNumber) - limit;
+  let maxPage = Math.ceil(totalRows / pageNumber);
+
+    if (isNaN(pageNumber)) {
+      res.status(400).json({ error: "Invalid pageNumber value" });
+      return;
+    }
+
+  if (totalRows === -1) {
     pool.query(`SELECT COUNT(*) FROM projects`, (error, result) => {
       if (error) {
         console.log(error);
@@ -13,34 +23,33 @@ router.get("/", async (req, res) => {
           .status(500)
           .json({ error: "An error occurred while counting rows" });
       } else {
-        totalCount = result.rows;
-        fetchNextPage(req, res);
+        totalRows = result.rows[0].count;
+        fetchNextPage(pageNumber, maxPage, res, offset);
       }
     });
   } else {
-    fetchNextPage(req, res);
+    fetchNextPage(pageNumber, maxPage, res, offset);
   }
 });
 
-function fetchNextPage(req, res) {
-  if (offset >= totalCount) {
-    offset = 0;
-  }
+function fetchNextPage(pageNumber, maxPage, res, offset) {
+  if (pageNumber < maxPage) {
+    pool.query(
+      `SELECT * FROM projects ORDER BY id LIMIT ${limit} OFFSET ${offset}`,
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res
+            .status(500)
+            .json({ error: "An error occurred while fetching data" });
+        } else {
+          offset += limit;
+          res.json({ rows: result.rows, totalRows: totalRows });
+        }
 
-  pool.query(
-    `SELECT * FROM projects ORDER BY id LIMIT 6 OFFSET $1`,[offset],
-    (error, result) => {
-      if (error) {
-        console.log(error);
-        res
-          .status(500)
-          .json({ error: "An error occurred while fetching data" });
-      } else {
-        offset += 6;
-        res.json({ rows: result.rows, totalRows: totalCount });
       }
-    }
-  );
+    );
+  }
 }
 
 router.post("/", authorization, async (req, res) => {

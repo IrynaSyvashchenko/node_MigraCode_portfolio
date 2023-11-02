@@ -100,6 +100,7 @@ router.get("/", async (req, res) => {
         });
         return res.json(allData);
     } catch (error) {
+        console.log(error)
         console.error("Error retrieving students:", error.message);
         return res.status(500).json({
             message: "An error occurred while getting the students.",
