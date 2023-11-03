@@ -1,148 +1,248 @@
 const router = require("express").Router();
 const pool = require("../database/db");
 const authorization = require("../middleware/authorization");
-let totalRows = -1;
+let totalProjects = 0;
 let limit = 6;
 
-
 router.get("/", async (req, res) => {
-  let pageNumber = parseInt(req.query.pageNumber);
-  let offset = (limit * pageNumber) - limit;
-  let maxPage = Math.ceil(totalRows / pageNumber);
+    let { nextpage, orderby } = req.query;
+    // first fetching should start with 1 or undefined
 
-    if (isNaN(pageNumber)) {
-      res.status(400).json({ error: "Invalid pageNumber value" });
-      return;
+    // checking if the next page has a length greater than 0 and it's not undefined and is not a valid number
+    if (
+        nextpage?.length > 0 &&
+        nextpage !== undefined &&
+        isNaN(parseInt(nextpage))
+    ) {
+        return res.status(400).json({ error: "Invalid nextpage value" });
     }
 
-  if (totalRows === -1) {
-    pool.query(`SELECT COUNT(*) FROM projects`, (error, result) => {
-      if (error) {
-        console.log(error);
-        res
-          .status(500)
-          .json({ error: "An error occurred while counting rows" });
-      } else {
-        totalRows = result.rows[0].count;
-        fetchNextPage(pageNumber, maxPage, res, offset);
-      }
-    });
-  } else {
-    fetchNextPage(pageNumber, maxPage, res, offset);
-  }
-});
+    // checking if the next page is undefined or equal to 1
+    if (!nextpage || parseInt(nextpage) == 1) {
+        try {
+            // query to get count of projects
+            const responseCountProjects = await pool.query(
+                `SELECT COUNT(*) FROM projects`
+            );
 
-function fetchNextPage(pageNumber, maxPage, res, offset) {
-  if (pageNumber < maxPage) {
-    pool.query(
-      `SELECT * FROM projects ORDER BY id LIMIT ${limit} OFFSET ${offset}`,
-      (error, result) => {
-        if (error) {
-          console.log(error);
-          res
-            .status(500)
-            .json({ error: "An error occurred while fetching data" });
+            // checking if the count in the response bigger than 0
+            if (responseCountProjects.rows[0].count > 0) {
+                // setting number of projects to totalProjects variable
+                totalProjects = responseCountProjects.rows[0].count;
+                // I set nextpage = 1 to set undefined to 1
+                nextpage = 1;
+            } else {
+                return res.status(200).json({ data: [] });
+            }
+        } catch (error) {
+            console.log(error);
+            console.error("Error retrieving Projects:", error.message);
+            return res.status(500).json({
+                message: "An error occurred while getting the Projects.",
+            });
+        }
+    }
+
+    // calculate the maximum number of pages
+    let maxPages = Math.ceil(totalProjects / limit);
+
+    // converting string to int number
+    nextpage = parseInt(nextpage);
+
+    //checking if nextpage is bigger than maxPages or less or equal to 0
+    if (nextpage > maxPages || nextpage <= 0) {
+        return res
+            .status(400)
+            .json({ error: `There is no page number ${nextpage}` });
+    }
+
+    try {
+        // checking if query order equal to a-z or z-a if not it will filter by id from the smallest to the largest
+        if (orderby == "a-z") {
+            orderby = `"name" ASC`;
+        } else if (orderby == "z-a") {
+            orderby = `"name" desc`;
         } else {
-          offset += limit;
-          res.json({ rows: result.rows, totalRows: totalRows });
+            orderby = '"id" ASC';
         }
 
-      }
-    );
-  }
-}
+        // calculates the offset for query
+        // offset in postgresql indicating where to start
+        let offset = limit * nextpage - limit;
+
+        const responseNextPage = await pool.query(
+            `SELECT * FROM projects ORDER BY ${orderby} LIMIT $1 OFFSET $2;`,
+            [limit, offset]
+        );
+
+        if (responseNextPage.rows.length > 0) {
+            // checking if next page to pass just data without offset
+            if (nextpage == maxPages) {
+                return res.status(200).json({ data: responseNextPage.rows });
+            }
+
+            nextpage += 1;
+
+            return res
+                .status(200)
+                .json({ data: responseNextPage.rows, nextpage: nextpage });
+        }
+        return res.status(200).json({ data: [] });
+    } catch (error) {
+        console.log(error);
+        console.error("Error retrieving Projects:", error.message);
+        return res.status(500).json({
+            message: "An error occurred while getting the Projects.",
+        });
+    }
+});
 
 router.post("/", authorization, async (req, res) => {
-  const newProject = req.body;
-  const query = `insert into projects (name, description, repository_link, live_demo_link, project_image_link, technologies_used, instructors_names, team_member_names, team_member_roles, trello_link, product_presentation_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
-  pool.query(
-    query,
-    [
-      newProject.name,
-      newProject.description,
-      newProject.repository_link,
-      newProject.live_demo_link,
-      newProject.project_image_link,
-      newProject.technologies_used,
-      newProject.instructors_names,
-      newProject.team_member_names,
-      newProject.team_member_roles,
-      newProject.trello_link,
-      newProject.product_presentation_link,
-    ],
-    (error, result) => {
-      if (error) {
-        console.log(error);
-        res.status(500).json({ error: "An error occurred" });
-      } else {
-        res.status(200).send(`Project created!`);
-      }
-    }
-  );
+    const newProject = req.body;
+    const query = `insert into projects (name, description, repository_link, live_demo_link, project_image_link, technologies_used, instructors_names, team_member_names, team_member_roles, trello_link, product_presentation_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
+    pool.query(
+        query,
+        [
+            newProject.name,
+            newProject.description,
+            newProject.repository_link,
+            newProject.live_demo_link,
+            newProject.project_image_link,
+            newProject.technologies_used,
+            newProject.instructors_names,
+            newProject.team_member_names,
+            newProject.team_member_roles,
+            newProject.trello_link,
+            newProject.product_presentation_link,
+        ],
+        (error, result) => {
+            if (error) {
+                console.log(error);
+                res.status(500).json({ error: "An error occurred" });
+            } else {
+                res.status(200).send(`Project created!`);
+            }
+        }
+    );
 });
 
 router.delete("/:projectId", authorization, async (req, res) => {
-  const projectId = req.params.projectId;
-  const queryProject = `SELECT * FROM projects WHERE id = $1`;
+    const projectId = req.params.projectId;
+    const queryProject = `SELECT * FROM projects WHERE id = $1`;
 
-  pool.query(queryProject, [projectId], (error, result) => {
-    if (error) {
-      console.log(error);
-      return res.status(500).json({ error: "An error occurred" });
-    }
+    pool.query(queryProject, [projectId], (error, result) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).json({ error: "An error occurred" });
+        }
 
-    if (result && result.rows.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "The project ID does not exist in the database" });
-    }
+        if (result && result.rows.length === 0) {
+            return res.status(400).json({
+                error: "The project ID does not exist in the database",
+            });
+        }
 
-    const deleteQuery = `DELETE FROM projects WHERE id = $1`;
+        const deleteQuery = `DELETE FROM projects WHERE id = $1`;
 
-    pool.query(deleteQuery, [projectId], (error, result) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ error: "An error occurred" });
-      }
+        pool.query(deleteQuery, [projectId], (error, result) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).json({ error: "An error occurred" });
+            }
 
-      res.status(200).send(`Project with ID ${projectId} deleted!`);
+            res.status(200).send(`Project with ID ${projectId} deleted!`);
+        });
     });
-  });
 });
 
 router.patch("/:projectId/:column", authorization, function (req, res) {
-  const projectId = req.params.projectId;
-  const column = req.params.column;
-  const newValue = req.body[column];
-  const queryProject = `SELECT * FROM projects WHERE id = $1`;
-  const updateQuery = `UPDATE projects SET ${column} = $1 WHERE id = $2`;
+    const projectId = req.params.projectId;
+    const column = req.params.column;
+    const newValue = req.body[column];
+    const queryProject = `SELECT * FROM projects WHERE id = $1`;
+    const updateQuery = `UPDATE projects SET ${column} = $1 WHERE id = $2`;
 
-  if (!newValue) {
-    return res.status(400).json({ error: `New ${column} is required` });
-  }
-
-  pool.query(queryProject, [projectId], (error, result) => {
-    if (error) {
-      console.log(error);
-      return res.status(500).json({ error: "An error occurred" });
+    if (!newValue) {
+        return res.status(400).json({ error: `New ${column} is required` });
     }
 
-    if (result && result.rows.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "The project ID does not exist in the database" });
-    }
+    pool.query(queryProject, [projectId], (error, result) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).json({ error: "An error occurred" });
+        }
 
-    pool
-      .query(updateQuery, [newValue, projectId])
-      .then(() =>
-        res.send(`Project ${projectId} ${column} updated to ${newValue}`)
-      )
-      .catch((e) => {
-        console.error(e);
-        res.status(500).json({ error: "An error occurred" });
-      });
-  });
+        if (result && result.rows.length === 0) {
+            return res.status(400).json({
+                error: "The project ID does not exist in the database",
+            });
+        }
+
+        pool.query(updateQuery, [newValue, projectId])
+            .then(() =>
+                res.send(
+                    `Project ${projectId} ${column} updated to ${newValue}`
+                )
+            )
+            .catch((e) => {
+                console.error(e);
+                res.status(500).json({ error: "An error occurred" });
+            });
+    });
 });
 
 module.exports = router;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// const router = require("express").Router();
+// const pool = require("../database/db");
+// const authorization = require("../middleware/authorization");
+// let totalRows = -1;
+// let limit = 6;
+
+// router.get("/", async (req, res) => {
+//   let pageNumber = parseInt(req.query.pageNumber);
+//   let offset = (limit * pageNumber) - limit;
+//   let maxPage = Math.ceil(totalRows / pageNumber);
+
+//     if (isNaN(pageNumber)) {
+//       res.status(400).json({ error: "Invalid pageNumber value" });
+//       return;
+//     }
+
+//   if (totalRows === -1) {
+//     pool.query(`SELECT COUNT(*) FROM projects`, (error, result) => {
+//       if (error) {
+//         console.log(error);
+//         res
+//           .status(500)
+//           .json({ error: "An error occurred while counting rows" });
+//       } else {
+//         totalRows = result.rows[0].count;
+//         fetchNextPage(pageNumber, maxPage, res, offset);
+//       }
+//     });
+//   } else {
+//     fetchNextPage(pageNumber, maxPage, res, offset);
+//   }
+// });
+
+// function fetchNextPage(pageNumber, maxPage, res, offset) {
+//   if (pageNumber < maxPage) {
+//     pool.query(
+//       `SELECT * FROM projects ORDER BY id LIMIT ${limit} OFFSET ${offset}`,
+//       (error, result) => {
+//         if (error) {
+//           console.log(error);
+//           res
+//             .status(500)
+//             .json({ error: "An error occurred while fetching data" });
+//         } else {
+//           offset += limit;
+//           res.json({ rows: result.rows, totalRows: totalRows });
+//         }
+
+//       }
+//     );
+//   }
+// }
+
