@@ -10,12 +10,9 @@ const headers = {
 };
 
 router.get("/", async (req, res) => {
-    let offset = req.query.offset;
-    let filterBy = req.query.filterBy;
-    let filterById = req.query.filterById;
-    const studentFullName = req.query.studentFullName;
+    let { offset, filterBy, filterById, studentFullName } = req.query;
 
-    let filterByFormula = '';
+    let filterByFormula = "";
 
     if (filterById) {
         // Filter records by ID
@@ -24,7 +21,7 @@ router.get("/", async (req, res) => {
         // Filter by student's name
         filterByFormula = `AND(FIND("${studentFullName}", {Full name}))`;
     }
-    
+
     if (filterBy === "a-z") {
         // filter students by a-z
         filterBy = [{ field: "Full name", direction: "asc" }];
@@ -38,69 +35,65 @@ router.get("/", async (req, res) => {
         filterBy = "";
     }
 
+    const queryParams = {
+        headers,
+        params: {
+            pageSize: 6,
+            maxRecords: 1500,
+            offset: offset,
+            sort: filterBy,
+            filterByFormula,
+        },
+    };
+    // console.log(queryParams.params);
+
     try {
-        let allData = { values: [], offset: "" };
-        const queryParams = {
-            headers,
-            params: {
-                pageSize: 6,
-                maxRecords: 1500,
-                offset: offset,
-                sort: filterBy,
-                filterByFormula,
-            },
-        };
-        // console.log(queryParams.params);
+        const dbResponse = await axios.get(airtableURL, queryParams);
+        const { data } = dbResponse;
 
-        await axios.get(airtableURL, queryParams).then(async (response) => {
-            // set next page
-            offset = response.data.offset;
-            allData.offset = offset;
+        // offset for next page
+        let allData = { values: [], offset: data.offset };
 
-            const records = response.data.records;
-            // console.log(records);
+        // promise to fetch images
+        await Promise.all(
+            // each record
+            data.records.map(async (record) => {
+                let avatar_url = "";
+                try {
+                    // 1) fetch image link
+                    const githubResponse = await axios.get(
+                        `https://api.github.com/users/${record.fields["GitHub handle"]}`
+                    );
+                    // set image in variable
+                    avatar_url = githubResponse.data.avatar_url;
+                } catch (error) {
+                    console.error(error.message);
+                }
 
-            // promise to fetch images
-            await Promise.all(
-                // each record
-                records.map(async (record) => {
-                    let avatar_url = "";
-                    try {
-                        // 1) fetch image link
-                        const githubResponse = await axios.get(
-                            `https://api.github.com/users/${record.fields["GitHub handle"]}`
-                        );
-                        // set image in variable
-                        avatar_url = githubResponse.data.avatar_url;
-                    } catch (error) {
-                        console.error(error.message);
-                    }
-
-                    allData.values.push({
-                        id: record.id,
-                        createdTime: record.createdTime,
-                        fullName: record.fields["Full name"],
-                        countryOfBirth: record.fields["Country of Birth"],
-                        email: record.fields["Email address"],
-                        Languages: record.fields["Language(s)"],
-                        gender: record.fields.Gender,
-                        gitHub: record.fields["GitHub handle"],
-                        imageUrl: avatar_url,
-                        group: record.fields.Group,
-                        LinkedIn: record.fields.LinkedIn
-                            ? record.fields.LinkedIn
-                            : "",
-                        skills: record.fields.Skills,
-                        selectedCourse: record.fields["Selected course"],
-                        comment: record.fields.Comment,
-                        courseCertificate: record.fields["Course certificate"],
-                    });
-                })
-            );
-        });
+                allData.values.push({
+                    id: record.id,
+                    createdTime: record.createdTime,
+                    fullName: record.fields["Full name"],
+                    countryOfBirth: record.fields["Country of Birth"],
+                    email: record.fields["Email address"],
+                    Languages: record.fields["Language(s)"],
+                    gender: record.fields.Gender,
+                    gitHub: record.fields["GitHub handle"],
+                    imageUrl: avatar_url,
+                    group: record.fields.Group,
+                    LinkedIn: record.fields.LinkedIn
+                        ? record.fields.LinkedIn
+                        : "",
+                    skills: record.fields.Skills,
+                    selectedCourse: record.fields["Selected course"],
+                    comment: record.fields.Comment,
+                    courseCertificate: record.fields["Course certificate"],
+                });
+            })
+        );
         return res.json(allData);
     } catch (error) {
-        console.log(error)
+        console.log(error);
         console.error("Error retrieving students:", error.message);
         return res.status(500).json({
             message: "An error occurred while getting the students.",
@@ -112,6 +105,6 @@ module.exports = router;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // to fetch next page http://localhost:3001/students?offset=...
 // ?offset=itrgOuEr5Q9Dj48dA/rec2EKNbV3JBuDsmV
-// ?filterBy= a-z, z-a 
+// ?filterBy= a-z, z-a
 // ?studentFullName=...
 // ?filterById=...
