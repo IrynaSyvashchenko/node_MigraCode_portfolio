@@ -52,7 +52,7 @@ router.get("/", async (req, res) => {
         const { data } = dbResponse;
 
         // offset for next page
-        let allData = { values: [], offset: data.offset };
+        let allData = { items: [], offset: data.offset };
 
         // promise to fetch images
         await Promise.all(
@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
                     console.error(error.message);
                 }
 
-                allData.values.push({
+                allData.items.push({
                     id: record.id,
                     createdTime: record.createdTime,
                     fullName: record.fields["Full name"],
