@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
                 // I set nextpage = 1 to set undefined to 1
                 nextpage = 1;
             } else {
-                return res.status(200).json({ data: [] });
+                return res.status(200).json({ items: [] });
             }
         } catch (error) {
             console.log(error);
@@ -76,18 +76,18 @@ router.get("/", async (req, res) => {
         );
 
         if (responseNextPage.rows.length > 0) {
-            // checking if next page to pass just data without offset
+            // checking if next page to pass just items without offset
             if (nextpage == maxPages) {
-                return res.status(200).json({ data: responseNextPage.rows });
+                return res.status(200).json({ items: responseNextPage.rows });
             }
 
             nextpage += 1;
 
             return res
                 .status(200)
-                .json({ data: responseNextPage.rows, nextpage: nextpage });
+                .json({ items: responseNextPage.rows, nextpage: nextpage });
         }
-        return res.status(200).json({ data: [] });
+        return res.status(200).json({ items: [] });
     } catch (error) {
         console.log(error);
         console.error("Error retrieving Projects:", error.message);
