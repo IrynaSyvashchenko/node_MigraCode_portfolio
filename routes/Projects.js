@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
   let offset = (limit * pageNumber) - limit;
   let maxPage = Math.ceil(totalRows / pageNumber);
 
-    if (isNaN(pageNumber)) {
+    if (isNaN(pageNumber) || pageNumber <= 0) {
       res.status(400).json({ error: "Invalid pageNumber value" });
       return;
     }
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 function fetchNextPage(pageNumber, maxPage, res, offset) {
   if (pageNumber < maxPage) {
     pool.query(
-      `SELECT * FROM projects ORDER BY id LIMIT ${limit} OFFSET ${offset}`,
+      `SELECT * FROM projects ORDER BY name LIMIT ${limit} OFFSET ${offset}`,
       (error, result) => {
         if (error) {
           console.log(error);
