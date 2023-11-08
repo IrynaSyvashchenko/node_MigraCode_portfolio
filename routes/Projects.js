@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const pool = require("../database/db");
+const moment = require("moment");
 const authorization = require("../middleware/authorization");
 let totalProjects = 0;
 let limit = 6;
@@ -62,6 +63,10 @@ router.get("/", async (req, res) => {
             orderby = `"name" ASC`;
         } else if (orderby == "z-a") {
             orderby = `"name" desc`;
+        } else if (orderby == "date-a-z") {
+            orderby = `date_have_been_done asc`;
+        } else if (orderby == "date-z-a") {
+            orderby = `date_have_been_done desc`;
         } else {
             orderby = '"id" ASC';
         }
@@ -74,6 +79,16 @@ router.get("/", async (req, res) => {
             `SELECT * FROM projects ORDER BY ${orderby} LIMIT $1 OFFSET $2;`,
             [limit, offset]
         );
+
+        // forming date_have_been_done 
+        responseNextPage.rows = responseNextPage.rows.map((row) => {
+            if (row.date_have_been_done) {
+                row.date_have_been_done = moment(
+                    row.date_have_been_done
+                ).format("YYYY-MM-DD");
+            }
+            return row;
+        });
 
         if (responseNextPage.rows.length > 0) {
             // checking if next page to pass just items without offset
@@ -247,4 +262,3 @@ module.exports = router;
 //     );
 //   }
 // }
-
