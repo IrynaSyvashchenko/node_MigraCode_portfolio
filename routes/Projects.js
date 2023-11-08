@@ -5,7 +5,7 @@ let totalProjects = 0;
 let limit = 6;
 
 router.get("/", async (req, res) => {
-    let { nextpage, orderby } = req.query;
+    let { nextpage, orderby} = req.query;
     // first fetching should start with 1 or undefined
 
     // checking if the next page has a length greater than 0 and it's not undefined and is not a valid number
@@ -101,28 +101,30 @@ router.post("/", authorization, async (req, res) => {
     const newProject = req.body;
     const query = `insert into projects (name, description, repository_link, live_demo_link, project_image_link, technologies_used, instructors_names, team_member_names, team_member_roles, trello_link, product_presentation_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
     pool.query(
-        query,
-        [
-            newProject.name,
-            newProject.description,
-            newProject.repository_link,
-            newProject.live_demo_link,
-            newProject.project_image_link,
-            newProject.technologies_used,
-            newProject.instructors_names,
-            newProject.team_member_names,
-            newProject.team_member_roles,
-            newProject.trello_link,
-            newProject.product_presentation_link,
-        ],
-        (error, result) => {
-            if (error) {
-                console.log(error);
-                res.status(500).json({ error: "An error occurred" });
-            } else {
-                res.status(200).send(`Project created!`);
-            }
+      query,
+      [
+        newProject.name,
+        newProject.description,
+        newProject.repository_link,
+        newProject.live_demo_link,
+        newProject.project_image_link,
+        newProject.technologies_used,
+        newProject.instructors_names,
+        newProject.team_member_names,
+        newProject.team_member_roles,
+        newProject.trello_link,
+        newProject.product_presentation_link,
+        newProject.date_have_been_done,
+        newProject.migracode_batch,
+      ],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ error: "An error occurred" });
+        } else {
+          res.status(200).send(`Project created!`);
         }
+      }
     );
 });
 
