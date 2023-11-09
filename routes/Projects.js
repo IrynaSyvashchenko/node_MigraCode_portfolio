@@ -3,10 +3,11 @@ const pool = require("../database/db");
 const moment = require("moment");
 const authorization = require("../middleware/authorization");
 let totalProjects = 0;
-let limit = 6;
+// let limit = 6;
 
 router.get("/", async (req, res) => {
-    let { nextpage, orderby} = req.query;
+
+    let { nextpage, orderby, limit = 6 } = req.query;
     // first fetching should start with 1 or undefined
 
     // checking if the next page has a length greater than 0 and it's not undefined and is not a valid number
@@ -80,7 +81,7 @@ router.get("/", async (req, res) => {
             [limit, offset]
         );
 
-        // forming date_have_been_done 
+        // forming date_have_been_done
         responseNextPage.rows = responseNextPage.rows.map((row) => {
             if (row.date_have_been_done) {
                 row.date_have_been_done = moment(
