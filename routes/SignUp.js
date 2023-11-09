@@ -1,14 +1,15 @@
 const router = require("express").Router();
 const pool = require("../database/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwtGenerator = require("../utils/jwtGenerator");
 
 router.post("/", async (req, res) => {
     try {
-        const { name, email, password, userType } = req.body;
+        const { name, email, password } = req.body;
 
         // Check if the request contains all required parameters
-        if (!name || !email || !password || !userType) {
+        // if (!name || !email || !password || !userType) {
+        if (!name || !email || !password ) {
             return res.status(400).json({
                 message:
                     "The request body is incomplete, please complete the request",
@@ -16,11 +17,11 @@ router.post("/", async (req, res) => {
         }
 
         // check if userType === web developer or migracode student
-        if (userType !== "web developer" && userType !== "migracode student") {
-            return res
-                .status(400)
-                .json({ message: "There is an incorrect value" });
-        }
+        // if (userType !== "web developer" && userType !== "migracode student") {
+        //     return res
+        //         .status(400)
+        //         .json({ message: "There is an incorrect value" });
+        // }
 
         // check if user exists
         const user = await pool.query(
@@ -39,9 +40,13 @@ router.post("/", async (req, res) => {
 
         // enter the new user inside the database
         const newUser = await pool.query(
-            "insert into users (username, password, email, user_type) values($1, $2, $3, $4) returning id, username, email, user_type",
-            [name, encryptedPassword, email, userType]
+            "insert into users (username, password, email) values($1, $2, $3) returning id, username, email",
+            [name, encryptedPassword, email]
         );
+        // const newUser = await pool.query(
+        //     "insert into users (username, password, email, user_type) values($1, $2, $3, $4) returning id, username, email, user_type",
+        //     [name, encryptedPassword, email, userType]
+        // );
 
         // generate token
         const token = jwtGenerator(newUser.rows[0].id);
