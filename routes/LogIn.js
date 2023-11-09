@@ -1,7 +1,7 @@
 const router = require("express").Router();
 require("dotenv").config();
 const pool = require("../database/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwtGenerator = require("../utils/jwtGenerator");
 
 router.post("/", async (req, res) => {
