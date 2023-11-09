@@ -10,7 +10,13 @@ const headers = {
 };
 
 router.get("/", async (req, res) => {
-    let { offset, filterBy, filterById, studentFullName } = req.query;
+    let {
+        offset,
+        filterBy,
+        filterById,
+        studentFullName,
+        limit = 6,
+    } = req.query;
 
     let filterByFormula = "";
 
@@ -38,7 +44,7 @@ router.get("/", async (req, res) => {
     const queryParams = {
         headers,
         params: {
-            pageSize: 6,
+            pageSize: limit,
             maxRecords: 1500,
             offset: offset,
             sort: filterBy,
