@@ -21,6 +21,34 @@ router.get("/user", authorization, async (req, res) => {
   }
 });
 
+router.get("/", authorization, async (req, res) => {
+  try {
+    const { userType } = req;
+    if (userType !== "web developer") {
+      return res.status(403);
+    }
+
+    const query = `select * from users`;
+    const results = await pool.query(query);
+
+    return res.status(200).json({
+      data: results.rows.map((user) => {
+        return {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          userType: user.user_type,
+        };
+      }),
+    });
+  } catch (error) {
+    console.error("Error retrieving users", error.message);
+    return res.status(500).json({
+      message: "An error occurred while getting the users list.",
+    });
+  }
+});
+
 // router.post("/signup", async(req, async (req, res) => {
 //   const { email, password } = req.body
 
