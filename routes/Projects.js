@@ -184,9 +184,10 @@ router.delete("/:projectId", authorization, async (req, res) => {
   });
 });
 
-// const { project_image_link, name, description } = cardData;
+
 
 router.patch("/:projectId/:column", authorization, function (req, res) {
+
   const projectId = req.params.projectId;
   const column = req.params.column;
   const newValue = req.body[column];
