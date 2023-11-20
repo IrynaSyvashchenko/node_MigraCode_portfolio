@@ -96,11 +96,14 @@ app.use("/login", require("./routes/LogIn"));
 // students route
 app.use('/students', require("./routes/Students"));
 
-// user route
+// projects route
 app.use('/projects', require("./routes/Projects"));
 
 // user route
 app.use('/users', require("./routes/Users"));
+
+// portfolio route
+app.use("/student", require("./routes/Portfolio"));
 
 // set port, listen for requests
 const PORT = process.env.PORT || 4000;
