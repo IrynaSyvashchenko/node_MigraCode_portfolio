@@ -2,8 +2,9 @@ const router = require("express").Router();
 const pool = require("../database/db");
 const bcrypt = require("bcryptjs");
 const { jwtGenerator, checkJwt } = require("../utils/jwtGenerator");
+const authorization = require("../middleware/authorization");
 
-router.post("/", async (req, res) => {
+router.post("/", authorization, async (req, res) => {
   try {
     const { name, email, password, type = "migracode student" } = req.body;
 
@@ -21,15 +22,8 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // check if user is logged in and is an admin
-    const jwt = req.headers.authorization;
-    const { jwtValid, jwtContent } = checkJwt(jwt);
-    const signupsAreOpen = process.env.ALLOW_SIGNUP_BY_ANYONE !== "true";
-    if (!jwtValid && !signupsAreOpen) {
-      return res.status(400).json({ message: "jwt not valid" });
-    }
+    const { userType } = req;
 
-    const userType = jwtContent.userType;
     if (userType !== "web developer") {
       return res.status(400).json({ message: "Only admin can create users" });
     }
