@@ -1,11 +1,26 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function jwtGenerator(user_id) {
-    const payload = {
-        userId: user_id,
-    };
-    return jwt.sign(payload, process.env.jwtSecret, { expiresIn: "1h" });
+function jwtGenerator(user_id, user_type) {
+  const payload = {
+    userId: user_id,
+    userType: user_type,
+  };
+  return jwt.sign(payload, process.env.jwtSecret, { expiresIn: "1h" });
 }
 
-module.exports = jwtGenerator;
+function checkJwt(token) {
+  try {
+    const jwtContent = jwt.verify(token, process.env.jwtSecret);
+
+    return { jwtValid: true, jwtContent };
+  } catch (error) {
+    console.log("Jwt not valid, error:", error);
+    return { jwtValid: false };
+  }
+}
+
+module.exports = {
+  jwtGenerator,
+  checkJwt,
+};

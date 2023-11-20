@@ -1,17 +1,11 @@
 const router = require("express").Router();
 const pool = require("../database/db");
 const bcrypt = require("bcryptjs");
-const jwtGenerator = require("../utils/jwtGenerator");
+const { jwtGenerator, checkJwt } = require("../utils/jwtGenerator");
 
 router.post("/", async (req, res) => {
   try {
-    const { name, email, password, type = "web developer" } = req.body;
-
-    if (process.env.ALLOW_SIGNUP_BY_ANYONE !== "true") {
-      return res
-        .status(400)
-        .json({ message: "Signup is not allowed outside of test mode" });
-    }
+    const { name, email, password, type = "migracode student" } = req.body;
 
     if (!name || !email || !password) {
       // Check if the request contains all required parameters
@@ -21,12 +15,24 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // check if userType === web developer or migracode student
-    // if (userType !== "web developer" && userType !== "migracode student") {
-    //     return res
-    //         .status(400)
-    //         .json({ message: "There is an incorrect value" });
-    // }
+    if (type !== "web developer" && type !== "migracode student") {
+      return res.status(400).json({
+        message: "Type must be 'web developer' or 'migracode student'",
+      });
+    }
+
+    // check if user is logged in and is an admin
+    const jwt = req.headers.authorization;
+    const { jwtValid, jwtContent } = checkJwt(jwt);
+    const signupsAreOpen = process.env.ALLOW_SIGNUP_BY_ANYONE !== "true";
+    if (!jwtValid && !signupsAreOpen) {
+      return res.status(400).json({ message: "jwt not valid" });
+    }
+
+    const userType = jwtContent.userType;
+    if (userType !== "web developer") {
+      return res.status(400).json({ message: "Only admin can create users" });
+    }
 
     // check if user exists
     const user = await pool.query(
