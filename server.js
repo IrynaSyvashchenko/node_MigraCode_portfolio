@@ -86,7 +86,7 @@ app.get("/", function (request, response) {
 
 // routes
 // signUp route
-// app.use("/singup", require("./routes/SignUp"));
+app.use("/singup", require("./routes/SignUp"));
 
 // signIn route
 app.use("/login", require("./routes/LogIn"));

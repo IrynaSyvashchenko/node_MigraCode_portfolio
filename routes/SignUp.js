@@ -8,25 +8,20 @@ router.post("/", authorization, async (req, res) => {
   try {
     const { name, email, password, type = "migracode student" } = req.body;
 
-    if (!name || !email || !password) {
-      // Check if the request contains all required parameters
-      // if (!name || !email || !password || !userType) {
-      return res.status(400).json({
-        message: "The request body is incomplete, please complete the request",
-      });
-    }
 
-    if (type !== "web developer" && type !== "migracode student") {
-      return res.status(400).json({
-        message: "Type must be 'web developer' or 'migracode student'",
-      });
-    }
+        // Check if the request contains all required parameters
+        if (!email || !password ) {
+            return res.status(400).json({
+                message:
+                    "The request body is incomplete, please complete the request",
+            });
+        }
 
-    const { userType } = req;
-
-    if (userType !== "web developer") {
-      return res.status(400).json({ message: "Only admin can create users" });
-    }
+        // check if user exists
+        const user = await pool.query(
+            "select COUNT(email) from users where email = $1",
+            [email]
+        );
 
     // check if user exists
     const user = await pool.query(
@@ -43,15 +38,11 @@ router.post("/", authorization, async (req, res) => {
     const salt = await bcrypt.genSalt();
     const encryptedPassword = await bcrypt.hash(password, salt);
 
-    // enter the new user inside the database
-    const newUser = await pool.query(
-      "insert into users (username, password, email, user_type) values($1, $2, $3, $4) returning id, username, email",
-      [name, encryptedPassword, email, type]
-    );
-    // const newUser = await pool.query(
-    //     "insert into users (username, password, email, user_type) values($1, $2, $3, $4) returning id, username, email, user_type",
-    //     [name, encryptedPassword, email, userType]
-    // );
+        // enter the new user inside the database
+        const newUser = await pool.query(
+            "insert into users (password, email) values($1, $2) returning id, username, email",
+            [encryptedPassword, email]
+        );
 
     // generate token
     const token = jwtGenerator(newUser.rows[0].id);
