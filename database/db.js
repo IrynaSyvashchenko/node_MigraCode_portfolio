@@ -8,6 +8,10 @@ const pool = new Pool({
   database: "migracode_final_project"
 });
 
+//   user: process.env.DB_PASSWORD || "postgres",
+//   password: process.env.DB_PASSWORD || "bygaga",
+//   database: "portfolio",
+
 // const pool = new Pool({
 //   host: "localhost",
 //   port: 5432,

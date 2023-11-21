@@ -15,8 +15,8 @@ app.use(cors());
 // ENDPOINT PART (middleware)
 
 app.use((request, response, next) => {
-    //
-    console.log(`
+  //
+  console.log(`
 
 Incoming request: 
     http method: ${request.method}
@@ -25,11 +25,11 @@ Incoming request:
     query: ${JSON.stringify(request.query)}
     body: ${JSON.stringify(request.body)}
 `);
-    next();
+  next();
 });
 
 app.get("/", function (request, response) {
-    response.send("MigraCode portfolio server.");
+  response.send("MigraCode portfolio server.");
 });
 
 // app.get("/gitusers", async function (request, response) {
@@ -84,8 +84,6 @@ app.get("/", function (request, response) {
 //   }
 // });
 
- 
-
 // routes
 // signUp route
 app.use("/singup", require("./routes/SignUp"));
@@ -94,16 +92,22 @@ app.use("/singup", require("./routes/SignUp"));
 app.use("/login", require("./routes/LogIn"));
 
 // students route
-app.use('/students', require("./routes/Students"));
+app.use("/students", require("./routes/Students"));
+
 
 // user route
-app.use('/projects', require("./routes/Projects"));
+app.use("/projects", require("./routes/Projects"));
 
 // user route
-app.use('/users', require("./routes/Users"));
+app.use("/users", require("./routes/Users"));
+
+app.use("/signup", require("./routes/SignUp"));
+
+// portfolio route
+app.use("/student", require("./routes/Portfolio"));
 
 // set port, listen for requests
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+  console.log(`Server is running on port ${PORT}.`);
 });
