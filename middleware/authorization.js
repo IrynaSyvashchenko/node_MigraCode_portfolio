@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
 
     // set userId from payload
     req.userId = payload.userId;
-    req.userType = payload.userType;
+    // req.userType = payload.userType;
 
     next();
   } catch (error) {
