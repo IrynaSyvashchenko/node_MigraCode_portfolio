@@ -8,20 +8,12 @@ router.post("/", async (req, res) => {
         const { name, email, password } = req.body;
 
         // Check if the request contains all required parameters
-        // if (!name || !email || !password || !userType) {
-        if (!name || !email || !password ) {
+        if (!email || !password ) {
             return res.status(400).json({
                 message:
                     "The request body is incomplete, please complete the request",
             });
         }
-
-        // check if userType === web developer or migracode student
-        // if (userType !== "web developer" && userType !== "migracode student") {
-        //     return res
-        //         .status(400)
-        //         .json({ message: "There is an incorrect value" });
-        // }
 
         // check if user exists
         const user = await pool.query(
@@ -40,13 +32,10 @@ router.post("/", async (req, res) => {
 
         // enter the new user inside the database
         const newUser = await pool.query(
-            "insert into users (username, password, email) values($1, $2, $3) returning id, username, email",
-            [name, encryptedPassword, email]
+            "insert into users (password, email) values($1, $2) returning id, username, email",
+            [encryptedPassword, email]
         );
-        // const newUser = await pool.query(
-        //     "insert into users (username, password, email, user_type) values($1, $2, $3, $4) returning id, username, email, user_type",
-        //     [name, encryptedPassword, email, userType]
-        // );
+
 
         // generate token
         const token = jwtGenerator(newUser.rows[0].id);
