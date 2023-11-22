@@ -2,7 +2,7 @@ const router = require("express").Router();
 require("dotenv").config();
 const pool = require("../database/db");
 const bcrypt = require("bcryptjs");
-const { jwtGenerator } = require("../utils/jwtGenerator");
+const jwtGenerator = require("../utils/jwtGenerator");
 
 router.post("/", async (req, res) => {
   try {
@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
     }
 
     // give token to the user
-    const token = jwtGenerator(user.rows[0].id, user.rows[0].user_type);
+    const token = jwtGenerator(user.rows[0].id);
     return res.json({
       message: "User logged in successfully!",
       loggedIn: true,
@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
         id: user.rows[0].id,
         userName: user.rows[0].username,
         email: user.rows[0].email,
-        userType: user.rows[0].user_type,
+        // userType: user.rows[0].user_type,
       },
       token,
     });

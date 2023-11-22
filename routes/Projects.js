@@ -112,8 +112,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// router.post("/", authorization, async (req, res) => {
-router.post("/", async (req, res) => {
+router.post("/",authorization, async (req, res) => {
     const newProject = req.body;
 
     const query = `
