@@ -86,7 +86,7 @@ app.get("/", function (request, response) {
 
 // routes
 // signUp route
-app.use("/singup", require("./routes/SignUp"));
+app.use("/signup", require("./routes/SignUp"));
 
 // signIn route
 app.use("/login", require("./routes/LogIn"));
@@ -95,16 +95,17 @@ app.use("/login", require("./routes/LogIn"));
 app.use("/students", require("./routes/Students"));
 
 
-// user route
+// projects route
 app.use("/projects", require("./routes/Projects"));
 
-// user route
-app.use("/users", require("./routes/Users"));
-
-app.use("/signup", require("./routes/SignUp"));
+// // user route
+// app.use("/users", require("./routes/Users"));
 
 // portfolio route
 app.use("/student", require("./routes/Portfolio"));
+
+// contact route
+app.use("/contact", require("./routes/Contact"));
 
 // set port, listen for requests
 const PORT = process.env.PORT || 4000;
