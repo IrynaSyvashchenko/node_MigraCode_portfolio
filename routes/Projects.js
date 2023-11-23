@@ -176,34 +176,35 @@ router.post("/",authorization, async (req, res) => {
     );
 });
 
-router.delete("/:projectId", authorization, async (req, res) => {
-    const projectId = req.params.projectId;
-    const queryProject = `SELECT * FROM projects WHERE id = $1`;
+// router.delete("/:projectId", authorization, async (req, res) => {
+    router.delete("/:projectId", async (req, res) => {
+      const projectId = req.params.projectId;
+      const queryProject = `SELECT * FROM projects WHERE id = $1`;
 
-    pool.query(queryProject, [projectId], (error, result) => {
+      pool.query(queryProject, [projectId], (error, result) => {
         if (error) {
-            console.log(error);
-            return res.status(500).json({ error: "An error occurred" });
+          console.log(error);
+          return res.status(500).json({ error: "An error occurred" });
         }
 
         if (result && result.rows.length === 0) {
-            return res.status(400).json({
-                error: "The project ID does not exist in the database",
-            });
+          return res.status(400).json({
+            error: "The project ID does not exist in the database",
+          });
         }
 
         const deleteQuery = `DELETE FROM projects WHERE id = $1`;
 
         pool.query(deleteQuery, [projectId], (error, result) => {
-            if (error) {
-                console.log(error);
-                return res.status(500).json({ error: "An error occurred" });
-            }
+          if (error) {
+            console.log(error);
+            return res.status(500).json({ error: "An error occurred" });
+          }
 
-            res.status(200).send(`Project with ID ${projectId} deleted!`);
+          res.status(200).send(`Project with ID ${projectId} deleted!`);
         });
+      });
     });
-});
 
 
 // router.patch("/:projectId/:column", authorization, function (req, res) {
