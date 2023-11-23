@@ -1,16 +1,21 @@
 const { Pool } = require("pg");
+require("dotenv").config();
+
+// const pool = new Pool({
+//   host: "localhost",
+//   port: 5432,
+//   user: process.env.DB_USERNAME || "postgres",
+//   password: process.env.DB_PASSWORD || "postgres",
+//   database: process.env.DB_NAME || "migracode_final_project",
+// });
 
 const pool = new Pool({
-  host: "localhost",
+  host: "db.byvzdpgaevzslrfcvbig.supabase.co",
   port: 5432,
-  user: process.env.DB_USERNAME || "postgres",
-  password: process.env.DB_PASSWORD || "postgres",
-  database: process.env.DB_NAME || "migracode_final_project",
+  user: "postgres",
+  database: "postgres",
+  password: process.env.DB_PASSWORD,
 });
-
-//   user: process.env.DB_PASSWORD || "postgres",
-//   password: process.env.DB_PASSWORD || "bygaga",
-//   database: "portfolio",
 
 // const pool = new Pool({
 //   host: "localhost",

@@ -1,14 +1,14 @@
 const router = require("express").Router();
 const axios = require("axios");
-var Airtable = require("airtable");
+// var Airtable = require("airtable");
 
 const tableId = "tblJfNpg9qgste0H4";
 
 const airtableURL = `https://api.airtable.com/v0/${process.env.BASE_ID}/${tableId}`;
 
-var base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-    process.env.BASE_ID
-);
+// var base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    // process.env.BASE_ID
+// );
 
 const headers = {
     Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
@@ -16,29 +16,29 @@ const headers = {
     Accept: "application/json",
 };
 
-router.get("/", async (req, res) => {
-    let {} = req.query;
+// router.get("/", async (req, res) => {
+//     let {} = req.query;
 
-    const queryParams = {
-        headers,
-        params: {
-            maxRecords: 1500,
-        },
-    };
-    try {
-        const dbResponse = await axios.get(airtableURL, queryParams);
-        const { data } = dbResponse;
-        return res.status(200).json({
-            data: data,
-        });
-    } catch (error) {
-        console.log(error);
-        console.error("Error retrieving students:", error.message);
-        return res.status(500).json({
-            message: "An error occurred while getting the students.",
-        });
-    }
-});
+//     const queryParams = {
+//         headers,
+//         params: {
+//             maxRecords: 1500,
+//         },
+//     };
+//     try {
+//         const dbResponse = await axios.get(airtableURL, queryParams);
+//         const { data } = dbResponse;
+//         return res.status(200).json({
+//             data: data,
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         console.error("Error retrieving students:", error.message);
+//         return res.status(500).json({
+//             message: "An error occurred while getting the students.",
+//         });
+//     }
+// });
 
 router.post("/", async (req, res) => {
     let { Recruiter, Message, Student, Name } = req.body;
