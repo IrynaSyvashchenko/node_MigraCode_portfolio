@@ -112,8 +112,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// router.post("/", authorization, async (req, res) => {
-router.post("/", async (req, res) => {
+router.post("/",authorization, async (req, res) => {
     const newProject = req.body;
 
     const query = `
@@ -245,56 +244,3 @@ router.post("/", async (req, res) => {
 // });
 
 module.exports = router;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// const router = require("express").Router();
-// const pool = require("../database/db");
-// const authorization = require("../middleware/authorization");
-// let totalRows = -1;
-// let limit = 6;
-
-// router.get("/", async (req, res) => {
-//   let pageNumber = parseInt(req.query.pageNumber);
-//   let offset = (limit * pageNumber) - limit;
-//   let maxPage = Math.ceil(totalRows / pageNumber);
-
-//     if (isNaN(pageNumber)) {
-//       res.status(400).json({ error: "Invalid pageNumber value" });
-//       return;
-//     }
-
-//   if (totalRows === -1) {
-//     pool.query(`SELECT COUNT(*) FROM projects`, (error, result) => {
-//       if (error) {
-//         console.log(error);
-//         res
-//           .status(500)
-//           .json({ error: "An error occurred while counting rows" });
-//       } else {
-//         totalRows = result.rows[0].count;
-//         fetchNextPage(pageNumber, maxPage, res, offset);
-//       }
-//     });
-//   } else {
-//     fetchNextPage(pageNumber, maxPage, res, offset);
-//   }
-// });
-
-// function fetchNextPage(pageNumber, maxPage, res, offset) {
-//   if (pageNumber < maxPage) {
-//     pool.query(
-//       `SELECT * FROM projects ORDER BY id LIMIT ${limit} OFFSET ${offset}`,
-//       (error, result) => {
-//         if (error) {
-//           console.log(error);
-//           res
-//             .status(500)
-//             .json({ error: "An error occurred while fetching data" });
-//         } else {
-//           offset += limit;
-//           res.json({ rows: result.rows, totalRows: totalRows });
-//         }
-
-//       }
-//     );
-//   }
-// }
