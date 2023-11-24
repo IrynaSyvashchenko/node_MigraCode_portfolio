@@ -34,9 +34,12 @@ router.get("/", async (req, res) => {
     } else if (filterBy === "z-a") {
         // filter students by z-a
         filterBy = [{ field: "Full name", direction: "desc" }];
-    } else if (filterBy === "graduatedDate") {
-        // to sort the data to graduated date column type the name of column  graduated date in the field
-        filterBy = [{ field: "", direction: "asc" }];
+    // } else if (filterBy === "newToOldGraduationDate") {
+    //     // filter students by new to old graduated date
+    //     filterBy = [{ field: "Graduation date", direction: "desc" }];
+    // } else if (filterBy === "oldToNewGraduationDate") {
+    //     // filter students by old to new graduated date
+    //     filterBy = [{ field: "Graduation date", direction: "asc" }];
     } else {
         filterBy = "";
     }
@@ -59,6 +62,8 @@ router.get("/", async (req, res) => {
 
         // offset for next page
         let allData = { items: [], offset: data.offset };
+        // console.log(data);
+        // return res.json(data);
 
         // each record
         data.records.map(async (record) => {
@@ -74,10 +79,13 @@ router.get("/", async (req, res) => {
                 imageUrl: ``,
                 group: record.fields.Group,
                 LinkedIn: record.fields.LinkedIn ? record.fields.LinkedIn : "",
-                skills: record.fields.Skills,
+                skills: record.fields["Coding stack"],
                 selectedCourse: record.fields["Selected course"],
-                comment: record.fields.Comment,
+                currentLocation: record.fields["Current location"],
+                comment: record.fields["MC comment"],
                 courseCertificate: record.fields["Course certificate"],
+                topSkills: record.fields["Top skills"],
+                // graduationDate: record.fields["Graduation date"],
             });
         });
         return res.json(allData);

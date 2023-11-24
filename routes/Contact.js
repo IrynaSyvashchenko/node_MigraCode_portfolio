@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
         // console.log(dbResponse);
 
         return res.status(201).json({
-            message: "Data posted successfully",
+            message: "The message has been sent successfully",
             data: dbResponse.data
         });
     } catch (error) {
